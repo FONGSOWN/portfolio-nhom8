@@ -1,11 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowUpRight, Send, CheckCircle2 } from 'lucide-react';
 
-export default function ContactSection() {
-  const [formData, setFormData] = useState({ name: '', email: '', target: 'all', message: '' });
-  const [sent, setSent] = useState(false);
+gsap.registerPlugin(ScrollTrigger);
 
-  const contacts = [
+export default function ContactSection() {
+  const sectionRef = useRef(null);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        sectionRef.current.querySelectorAll('.contact-panel'),
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const members = [
     {
       name: 'NGUYỄN VĂN TRUNG',
       role: 'Core Systems & Backend',
@@ -41,72 +68,76 @@ export default function ContactSection() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
-    setSent(true);
+    setSubmitted(true);
     setTimeout(() => {
-      setSent(false);
-      setFormData({ name: '', email: '', target: 'all', message: '' });
+      setSubmitted(false);
+      setFormData({ name: '', email: '', message: '' });
     }, 4000);
   };
 
   return (
-    <section id="contact" className="editorial-wrap border-t border-[rgba(255,255,255,0.06)]">
+    <section
+      ref={sectionRef}
+      id="contact"
+      className="section-container border-t border-[rgba(255,255,255,0.06)]"
+    >
       {/* Background ambient spotlight */}
       <div
-        className="red-ambient-light w-[500px] h-[500px] bg-[#B8001F] -left-28 top-1/2 opacity-15"
+        className="red-ambient-spot w-[450px] h-[450px] bg-[#C00024] -left-20 top-1/2 opacity-10"
         aria-hidden="true"
       />
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
         <div>
-          <span className="font-mono text-xs text-[#FF5A73] tracking-[0.35em] uppercase font-bold block mb-2">
-            [ 04 // DIRECT DISPATCH ]
+          <span className="font-mono text-[10px] text-[#FF5A73] tracking-[0.3em] uppercase font-bold block mb-1.5">
+            // DISPATCH
           </span>
-          <h2 className="editorial-title text-5xl sm:text-7xl text-white">
-            CON<span className="text-[#FF1E44]">TACT</span>
+          <h2 className="section-headline text-3xl sm:text-4xl md:text-5xl">
+            CON<span className="text-[#E50914]">TACT</span>
           </h2>
         </div>
 
-        <div className="font-mono text-xs text-[#777] border-l border-[#B8001F] pl-4 uppercase">
-          KẾT NỐI TRỰC TIẾP VỚI CÁC THÀNH VIÊN THE SYNDICATE
-        </div>
+        <p className="font-mono text-xs text-[#777] max-w-sm sm:text-right uppercase">
+          KẾT NỐI TRỰC TIẾP VỚI CÁC THÀNH VIÊN
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Left Side: Three Operatives Channels (6 cols) */}
-        <div className="lg:col-span-6 space-y-6">
-          {contacts.map((op, idx) => (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7">
+        {/* Left: 3 Member Direct Channels (6 cols) */}
+        <div className="contact-panel lg:col-span-6 space-y-4">
+          {members.map((m, idx) => (
             <div
               key={idx}
-              className="p-6 bg-[#080808] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,30,68,0.4)] transition-all duration-300"
+              className="p-5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(229,9,20,0.4)] transition-colors duration-300 rounded"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-display font-black text-xl text-white uppercase tracking-tight">
-                    {op.name}
+                  <h3 className="font-display font-black text-base text-white uppercase tracking-tight">
+                    {m.name}
                   </h3>
-                  <p className="font-mono text-xs text-[#FF5A73] mt-0.5">{op.role}</p>
+                  <p className="font-mono text-xs text-[#FF5A73]">{m.role}</p>
                 </div>
 
                 <a
-                  href={op.portfolio}
+                  href={m.portfolio}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-cinema text-[10px] py-2 px-3 group/link"
+                  className="btn-syndicate text-[10px] py-1.5 px-2.5 group/btn"
                 >
                   <span>PORTFOLIO</span>
-                  <ArrowUpRight size={12} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={11} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                 </a>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.05)] flex items-center gap-4 text-xs font-mono">
-                {op.links.map((link, lIdx) => (
+              <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)] flex items-center gap-4 text-xs font-mono">
+                {m.links.map((link, lIdx) => (
                   <a
                     key={lIdx}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#888] hover:text-[#FF1E44] transition uppercase tracking-wider"
+                    className="text-[#777] hover:text-[#E50914] transition uppercase tracking-wider"
                   >
                     {link.label}
                   </a>
@@ -116,79 +147,81 @@ export default function ContactSection() {
           ))}
         </div>
 
-        {/* Right Side: Clean Dispatch Transmission (6 cols) */}
-        <div className="lg:col-span-6">
-          <div className="p-8 sm:p-10 bg-[#080808] border border-[rgba(255,255,255,0.07)]">
-            <h3 className="font-display font-black text-2xl text-white uppercase tracking-tight mb-2">
-              GỬI THÔNG ĐIỆP
-            </h3>
-            <p className="font-body text-xs text-[#777] mb-8 leading-relaxed">
-              Bạn có dự án hoặc muốn trao đổi chuyên môn? Gửi tin nhắn trực tiếp đến toàn đội ngũ.
-            </p>
+        {/* Right: Message Form (6 cols) */}
+        <div className="contact-panel lg:col-span-6">
+          <div className="p-6 sm:p-7 bg-[#0a0a0a] border border-[rgba(255,255,255,0.07)] rounded h-full flex flex-col justify-between">
+            <div>
+              <h3 className="font-display font-black text-lg text-white uppercase tracking-tight mb-1">
+                GỬI THÔNG ĐIỆP
+              </h3>
+              <p className="font-body text-xs text-[#777] mb-5">
+                Gửi tin nhắn hoặc lời mời hợp tác trực tiếp đến toàn đội ngũ The Syndicate.
+              </p>
 
-            {sent ? (
-              <div className="py-14 text-center">
-                <CheckCircle2 size={40} className="text-[#FF1E44] mx-auto mb-3 animate-bounce" />
-                <h4 className="font-display font-bold text-xl text-white uppercase">
-                  TÍN HIỆU ĐÃ ĐƯỢC CHUYỂN TIẾP!
-                </h4>
-                <p className="font-mono text-xs text-[#888] mt-2">
-                  The Syndicate sẽ phản hồi lại bạn qua email trong thời gian sớm nhất.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block font-mono text-[11px] text-[#777] uppercase tracking-wider mb-2">
-                    DANH TÍNH CỦA BẠN
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Họ và tên..."
-                    className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-4 py-3 text-sm text-white placeholder-[#555] focus:outline-none focus:border-[#FF1E44] font-body transition-colors"
-                  />
+              {submitted ? (
+                <div className="py-10 text-center">
+                  <CheckCircle2 size={32} className="text-[#E50914] mx-auto mb-2 animate-bounce" />
+                  <h4 className="font-display font-bold text-base text-white uppercase">
+                    TÍN HIỆU ĐÃ ĐƯỢC GHI NHẬN!
+                  </h4>
+                  <p className="font-mono text-xs text-[#777] mt-1">
+                    Chúng tôi sẽ phản hồi lại bạn qua email trong thời gian sớm nhất.
+                  </p>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block font-mono text-[10px] text-[#777] uppercase tracking-wider mb-1.5">
+                      DANH TÍNH CỦA BẠN
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Họ và tên..."
+                      className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-xs text-white placeholder-[#555] focus:outline-none focus:border-[#E50914] font-body rounded transition-colors"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block font-mono text-[11px] text-[#777] uppercase tracking-wider mb-2">
-                    ĐỊA CHỈ EMAIL
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="name@domain.com"
-                    className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-4 py-3 text-sm text-white placeholder-[#555] focus:outline-none focus:border-[#FF1E44] font-body transition-colors"
-                  />
-                </div>
+                  <div>
+                    <label className="block font-mono text-[10px] text-[#777] uppercase tracking-wider mb-1.5">
+                      ĐỊA CHỈ EMAIL
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="name@domain.com"
+                      className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-xs text-white placeholder-[#555] focus:outline-none focus:border-[#E50914] font-body rounded transition-colors"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block font-mono text-[11px] text-[#777] uppercase tracking-wider mb-2">
-                    NỘI DUNG TRAO ĐỔI
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Nội dung thông điệp..."
-                    className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-4 py-3 text-sm text-white placeholder-[#555] focus:outline-none focus:border-[#FF1E44] font-body resize-none transition-colors"
-                  />
-                </div>
+                  <div>
+                    <label className="block font-mono text-[10px] text-[#777] uppercase tracking-wider mb-1.5">
+                      NỘI DUNG TRAO ĐỔI
+                    </label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Nội dung thông điệp..."
+                      className="w-full bg-[#111111] border border-[rgba(255,255,255,0.08)] px-3.5 py-2.5 text-xs text-white placeholder-[#555] focus:outline-none focus:border-[#E50914] font-body rounded resize-none transition-colors"
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  className="btn-cinema btn-cinema-red w-full text-xs py-4"
-                >
-                  <Send size={14} />
-                  <span>TRANSMIT DISPATCH</span>
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    className="btn-syndicate btn-syndicate-red w-full text-xs py-3"
+                  >
+                    <Send size={13} />
+                    <span>TRANSMIT DISPATCH</span>
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

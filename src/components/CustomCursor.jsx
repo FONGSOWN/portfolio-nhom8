@@ -7,7 +7,6 @@ export default function CustomCursor() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Only on pointer-fine devices
     if (!window.matchMedia('(pointer: fine)').matches) return;
 
     let targetX = -100;
@@ -39,8 +38,8 @@ export default function CustomCursor() {
     const onLeave = () => setVisible(false);
 
     const loop = () => {
-      curX += (targetX - curX) * 0.2;
-      curY += (targetY - curY) * 0.2;
+      curX += (targetX - curX) * 0.22;
+      curY += (targetY - curY) * 0.22;
       setTrailPos({ x: curX, y: curY });
       animId = requestAnimationFrame(loop);
     };
@@ -72,12 +71,12 @@ export default function CustomCursor() {
       >
         <div
           className={`rounded-full transition-all duration-150 ${
-            isHovered ? 'w-2 h-2 bg-[#FF1E44]' : 'w-1.5 h-1.5 bg-[#FF1E44]'
+            isHovered ? 'w-2 h-2 bg-[#E50914]' : 'w-1.5 h-1.5 bg-[#E50914]'
           }`}
         />
       </div>
 
-      {/* Outer Sleek Ring */}
+      {/* Outer Subtle Ring */}
       <div
         className="fixed pointer-events-none z-[9998]"
         style={{
@@ -90,8 +89,8 @@ export default function CustomCursor() {
         <div
           className={`rounded-full border transition-all duration-200 ${
             isHovered
-              ? 'w-10 h-10 border-[#FF1E44] bg-[#FF1E44]/10 shadow-[0_0_15px_rgba(255,30,68,0.4)]'
-              : 'w-6 h-6 border-[rgba(255,30,68,0.35)]'
+              ? 'w-8 h-8 border-[#E50914] bg-[#E50914]/10'
+              : 'w-5 h-5 border-[rgba(229,9,20,0.35)]'
           }`}
         />
       </div>

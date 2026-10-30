@@ -1,86 +1,119 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function TechStackSection() {
-  const stacks = [
+  const sectionRef = useRef(null);
+
+  const pillars = [
     {
-      num: '01',
-      domain: 'BACKEND ARCHITECTURE',
-      technologies: 'Python Flask • Java • Socket Programming • C/C++ • RESTful API',
-      focus: 'Xây dựng kết cấu xử lý logic chịu tải, giao thức truyền tin socket thời gian thực và API tinh gọn.',
+      index: '01',
+      title: 'BACKEND ARCHITECTURE',
+      techs: ['Python Flask', 'Java & Socket', 'C / C++', 'RESTful API'],
+      summary: 'Xử lý logic nghiệp vụ, giao thức truyền tin Socket thời gian thực và API microservices.',
     },
     {
-      num: '02',
-      domain: 'INTERFACE ENGINEERING',
-      technologies: 'React JS • Tailwind CSS • Modern JavaScript ES6+ • Motion Interaction',
-      focus: 'Thiết kế giao diện dark cinematic, tối ưu hóa tốc độ tải và trải nghiệm tương tác số trực quan.',
+      index: '02',
+      title: 'INTERFACE ENGINEERING',
+      techs: ['React JS', 'Tailwind CSS', 'JavaScript ES6+', 'Motion UI'],
+      summary: 'Giao diện dark mode hiện đại, tối ưu hóa tốc độ phản hồi và chuyển động 60fps mượt mà.',
     },
     {
-      num: '03',
-      domain: 'DATA ARCHITECTURE',
-      technologies: 'MySQL • SQLite • Stored Procedures • Relational Modeling',
-      focus: 'Bảo toàn tính nhất quán dữ liệu ACID, thiết kế lược đồ quan hệ và tối ưu hóa truy vấn cơ sở dữ liệu.',
+      index: '03',
+      title: 'DATA ARCHITECTURE',
+      techs: ['MySQL', 'SQLite DB', 'Stored Procedures', 'ACID Modeling'],
+      summary: 'Lược đồ cơ sở dữ liệu quan hệ chặt chẽ, tối ưu hóa truy vấn và tính toàn vẹn dữ liệu.',
     },
     {
-      num: '04',
-      domain: 'CLOUD & OPERATIONS',
-      technologies: 'Render Cloud • Vercel • Git & GitHub • Vite Build Engine',
-      focus: 'Tự động hóa luồng triển khai, kiểm soát mã nguồn liên tục và đóng gói ứng dụng production tối ưu.',
+      index: '04',
+      title: 'CLOUD & OPERATIONS',
+      techs: ['Render Cloud', 'Vercel', 'Git & GitHub', 'Vite Engine'],
+      summary: 'Tự động hóa luồng triển khai, kiểm soát phiên bản liên tục và đóng gói ứng dụng production.',
     },
   ];
 
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const cards = sectionRef.current.querySelectorAll('.tech-card');
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 25 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="tech" className="editorial-wrap border-t border-[rgba(255,255,255,0.06)]">
+    <section
+      ref={sectionRef}
+      id="tech"
+      className="section-container border-t border-[rgba(255,255,255,0.06)]"
+    >
       {/* Background ambient spotlight */}
       <div
-        className="red-ambient-light w-[450px] h-[450px] bg-[#B8001F] -right-24 top-1/2 opacity-15"
+        className="red-ambient-spot w-[450px] h-[450px] bg-[#C00024] -right-24 top-1/2 opacity-10"
         aria-hidden="true"
       />
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
         <div>
-          <span className="font-mono text-xs text-[#FF5A73] tracking-[0.35em] uppercase font-bold block mb-2">
-            [ 03 // ARCHITECTURAL STACK ]
+          <span className="font-mono text-[10px] text-[#FF5A73] tracking-[0.3em] uppercase font-bold block mb-1.5">
+            // ARSENAL
           </span>
-          <h2 className="editorial-title text-5xl sm:text-7xl text-white">
-            TECH<span className="text-[#FF1E44]">NOLOGY</span>
+          <h2 className="section-headline text-3xl sm:text-4xl md:text-5xl">
+            TECH<span className="text-[#E50914]">NOLOGY</span>
           </h2>
         </div>
 
-        <div className="font-mono text-xs text-[#777] border-l border-[#B8001F] pl-4 uppercase">
-          THỰC CHIẾN TRÊN CÁC DỰ ÁN TẠI UTH TP.HCM
-        </div>
+        <p className="font-mono text-xs text-[#777] max-w-sm sm:text-right uppercase">
+          CÔNG CỤ THỰC CHIẾN ĐÃ ĐƯỢC CHỨNG MINH
+        </p>
       </div>
 
-      {/* Minimalist Editorial Row Matrix (Awwwards Style) */}
-      <div className="divide-y divide-[rgba(255,255,255,0.07)] border-y border-[rgba(255,255,255,0.07)]">
-        {stacks.map((s) => (
+      {/* 4 Pillars Grid (Compact, balanced) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {pillars.map((p) => (
           <div
-            key={s.num}
-            className="py-10 sm:py-12 grid grid-cols-1 md:grid-cols-12 gap-6 items-start group hover:bg-[#080808] transition-colors duration-400 px-4 -mx-4"
+            key={p.index}
+            className="tech-card p-5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(229,9,20,0.4)] transition-colors duration-300 rounded flex flex-col justify-between"
           >
-            {/* Index */}
-            <div className="md:col-span-2">
-              <span className="font-title text-3xl sm:text-4xl text-[#FF1E44] tracking-widest block">
-                {s.num}
+            <div>
+              <span className="font-title text-2xl text-[#E50914] tracking-wider block">
+                {p.index}
               </span>
-            </div>
-
-            {/* Domain */}
-            <div className="md:col-span-4">
-              <h3 className="font-display font-black text-xl sm:text-2xl text-white uppercase tracking-tight group-hover:text-[#FF1E44] transition-colors">
-                {s.domain}
+              <h3 className="font-display font-black text-sm text-white uppercase tracking-wide mt-1">
+                {p.title}
               </h3>
-              <p className="font-body text-xs text-[#777] leading-relaxed mt-2">
-                {s.focus}
+
+              <p className="font-body text-xs text-[#777] leading-relaxed mt-2.5">
+                {p.summary}
               </p>
             </div>
 
-            {/* Technologies */}
-            <div className="md:col-span-6 flex items-center md:justify-end">
-              <span className="font-mono text-xs sm:text-sm text-[#ccc] tracking-wider uppercase bg-[#0e0e0e] border border-[rgba(255,255,255,0.06)] px-4 py-2.5 rounded-lg">
-                {s.technologies}
-              </span>
+            <div className="mt-5 pt-3.5 border-t border-[rgba(255,255,255,0.05)] flex flex-wrap gap-1.5">
+              {p.techs.map((t, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="font-mono text-[9px] uppercase px-2 py-0.5 bg-[#121212] text-[#bbb] rounded border border-[rgba(255,255,255,0.04)]"
+                >
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
         ))}

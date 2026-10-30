@@ -1,155 +1,214 @@
-import React, { useState, useEffect } from 'react';
-import { Skull, ChevronDown, Flame, Shield, Crosshair } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Crosshair, ArrowDown } from 'lucide-react';
 
-export default function HeroSection({ onEnterUnderground, isMusicPlaying }) {
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+export default function HeroSection({ isMusicPlaying }) {
+  // Multi-stage cinematic reveal phase (0 -> 4)
+  const [revealPhase, setRevealPhase] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [typedTitle, setTypedTitle] = useState('');
   const fullTitle = 'WE ARE NOT ORDINARY.';
 
-  // Letter by letter typing reveal
+  // Orchestrate the opening sequence
   useEffect(() => {
-    let index = 0;
+    const timers = [
+      setTimeout(() => setRevealPhase(1), 300),   // Light cuts through darkness
+      setTimeout(() => setRevealPhase(2), 1100),  // Logo emerges
+      setTimeout(() => setRevealPhase(3), 2000),  // Smoke & background reveal
+      setTimeout(() => setRevealPhase(4), 2800),  // Full typography & 3D depth
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // Letter by letter typing reveal once phase 4 is reached
+  useEffect(() => {
+    if (revealPhase < 4) return;
+    let idx = 0;
     const interval = setInterval(() => {
-      if (index <= fullTitle.length) {
-        setTypedTitle(fullTitle.slice(0, index));
-        index++;
+      if (idx <= fullTitle.length) {
+        setTypedTitle(fullTitle.slice(0, idx));
+        idx++;
       } else {
         clearInterval(interval);
       }
-    }, 75);
+    }, 60);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [revealPhase]);
 
-  // Subtle mouse parallax
+  // Smooth mouse parallax
   const handleMouseMove = (e) => {
     const { clientX, clientY } = e;
-    const x = (clientX / window.innerWidth - 0.5) * 20;
-    const y = (clientY / window.innerHeight - 0.5) * 20;
-    setMouseOffset({ x, y });
+    const x = (clientX / window.innerWidth - 0.5) * 24;
+    const y = (clientY / window.innerHeight - 0.5) * 24;
+    setMousePos({ x, y });
+  };
+
+  const scrollToNext = () => {
+    const nextSection = document.getElementById('crew');
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <header
+    <section
       id="hero"
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505] pt-20 pb-16"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303] select-none"
     >
-      {/* City at Night Background Layer with Vignette */}
+      {/* 1. CINEMATIC BACKGROUND NOIR CITY (Fades in with slow camera zoom) */}
       <div
-        className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-20 filter contrast-150 grayscale"
-        style={{
-          backgroundImage:
-            'url("https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80")',
-          transform: `translate3d(${mouseOffset.x * 0.4}px, ${mouseOffset.y * 0.4}px, 0) scale(1.05)`,
-          transition: 'transform 0.15s ease-out',
-        }}
-      />
-
-      {/* Dark vignette mask */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#050505]/80 to-[#050505] pointer-events-none" />
-
-      {/* Atmospheric Red Halo Glow behind the emblem */}
-      <div
-        className={`absolute w-[450px] h-[450px] md:w-[650px] md:h-[650px] rounded-full bg-[#C00024] opacity-20 filter blur-[120px] pointer-events-none transition-all duration-700 ${
-          isMusicPlaying ? 'ambient-pulse-active opacity-35 scale-110' : ''
+        className={`absolute inset-0 bg-cover bg-center pointer-events-none transition-all duration-1000 ${
+          revealPhase >= 3 ? 'opacity-25 scale-100' : 'opacity-0 scale-110'
         }`}
         style={{
-          transform: `translate3d(${mouseOffset.x * -0.6}px, ${mouseOffset.y * -0.6}px, 0)`,
+          backgroundImage:
+            'url("https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=2000&q=85")',
+          filter: 'grayscale(100%) contrast(140%) brightness(55%)',
+          transform: `translate3d(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px, 0) scale(${
+            revealPhase >= 3 ? 1.05 : 1.15
+          })`,
+          transition: 'transform 0.2s ease-out, opacity 1.8s ease-out',
         }}
+        aria-hidden="true"
       />
 
-      {/* Floating Red Laser Scan Line */}
-      <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#FF1E44] to-transparent opacity-40 shadow-[0_0_15px_#FF1E44] animate-pulse" />
+      {/* Deep vignette shadow mask */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303] pointer-events-none"
+        aria-hidden="true"
+      />
 
-      {/* Hero Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
-        {/* Syndicate Emblem Rising from Shadows */}
+      {/* 2. RED SPOTLIGHT & BREATHING CRIMSON ATMOSPHERE */}
+      <div
+        className={`red-ambient-light w-[500px] h-[500px] md:w-[750px] md:h-[750px] bg-[#B8001F] transition-all duration-1000 ${
+          revealPhase >= 1 ? 'opacity-25' : 'opacity-0'
+        } ${isMusicPlaying ? 'ambient-bass-pulse' : ''}`}
+        style={{
+          transform: `translate3d(${mousePos.x * -0.6}px, ${mousePos.y * -0.6}px, 0)`,
+          transition: 'transform 0.3s ease-out, opacity 1.5s ease',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* 3. HERO CONTENT WRAPPER */}
+      <div
+        className="relative z-10 max-w-6xl mx-auto px-6 py-24 text-center flex flex-col items-center justify-center"
+        style={{
+          transform: `perspective(1000px) rotateX(${mousePos.y * -0.2}deg) rotateY(${
+            mousePos.x * 0.2
+          }deg)`,
+          transition: 'transform 0.15s ease-out',
+        }}
+      >
+        {/* LOGO REVEAL STAGE */}
         <div
-          className="relative mb-6 group"
-          style={{
-            transform: `translate3d(${mouseOffset.x * -0.8}px, ${mouseOffset.y * -0.8}px, 0)`,
-            transition: 'transform 0.15s ease-out',
-          }}
+          className={`relative mb-8 transition-all duration-1000 ${
+            revealPhase >= 2
+              ? 'opacity-100 scale-100 translate-y-0'
+              : 'opacity-0 scale-75 translate-y-8'
+          }`}
         >
-          {/* Outer glowing octagon ring */}
-          <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-full border-2 border-[rgba(192,0,36,0.6)] flex items-center justify-center bg-[#0d0406]/90 shadow-[0_0_40px_rgba(192,0,36,0.5)] group-hover:border-[#FF1E44] group-hover:shadow-[0_0_60px_rgba(255,30,68,0.7)] transition-all duration-500">
-            {/* Spinning tactical crosshairs */}
+          {/* Outer glowing emblem */}
+          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full border border-[rgba(184,0,31,0.6)] bg-[#080203]/90 backdrop-blur-md flex items-center justify-center shadow-[0_0_50px_rgba(184,0,31,0.4)] group">
+            {/* Spinning tactical reticle */}
             <Crosshair
-              size={130}
-              className="absolute text-[#FF1E44]/20 animate-spin"
-              style={{ animationDuration: '24s' }}
+              size={110}
+              className="absolute text-[#FF1E44]/25 animate-spin"
+              style={{ animationDuration: '30s' }}
             />
 
-            {/* Central Skull / Insignia */}
+            {/* Inner Crest Monogram */}
             <div className="relative z-10 flex flex-col items-center">
-              <Skull size={44} className="text-[#FF1E44] filter drop-shadow-[0_0_12px_#FF1E44]" />
-              <span className="font-mono text-[9px] font-extrabold tracking-[0.3em] text-white mt-1">
-                GANG GANG
+              <span className="font-title text-3xl md:text-4xl tracking-widest text-[#FF1E44] drop-shadow-[0_0_15px_#FF1E44]">
+                SYNDICATE
+              </span>
+              <span className="font-mono text-[8px] md:text-[9px] tracking-[0.35em] text-[#888] uppercase mt-0.5">
+                UTH // COHORT
               </span>
             </div>
 
-            {/* Corner Notch Accents */}
-            <span className="absolute -top-1 w-3 h-3 border-t-2 border-l-2 border-[#FF1E44]" />
-            <span className="absolute -bottom-1 w-3 h-3 border-b-2 border-r-2 border-[#FF1E44]" />
-          </div>
-
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-[#FF1E44]" />
-            <span className="badge-gang">UTH IT SYNDICATE // COHORT 2024–2028</span>
-            <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-[#FF1E44]" />
+            {/* Subtle corner notches */}
+            <span className="absolute -top-1 w-2 h-2 border-t border-l border-[#FF1E44]" />
+            <span className="absolute -bottom-1 w-2 h-2 border-b border-r border-[#FF1E44]" />
           </div>
         </div>
 
-        {/* Big Impact Headline */}
-        <h1 className="font-display font-black text-5xl sm:text-6xl md:text-8xl tracking-tight leading-none text-white drop-shadow-[0_5px_25px_rgba(0,0,0,0.9)] uppercase mt-2">
-          <span className="glitch-text text-glow-red" data-text={typedTitle}>
-            {typedTitle}
+        {/* LAYER 1: SUPER TITLE */}
+        <div
+          className={`overflow-hidden transition-all duration-1000 ${
+            revealPhase >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          <span className="font-mono text-xs sm:text-sm tracking-[0.4em] uppercase text-[#FF5A73] font-bold block mb-3">
+            DARK GANG // UNDERGROUND CINEMA
           </span>
-          <span className="inline-block w-3 md:w-5 h-10 md:h-16 bg-[#FF1E44] ml-1 animate-pulse align-middle" />
-        </h1>
+        </div>
 
-        {/* Subtitle */}
-        <p className="font-mono font-bold text-base sm:text-xl md:text-2xl text-[#D0D0D0] mt-6 tracking-[0.25em] uppercase flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-[#FF1E44]">THREE MINDS.</span>
-          <span className="text-white">ONE VISION.</span>
-          <span className="text-[#FF1E44]">ZERO LIMITS.</span>
-        </p>
+        {/* LAYER 2: MASSIVE EDITORIAL HEADLINE */}
+        <div
+          className={`transition-all duration-1000 ${
+            revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
+          <h1 className="editorial-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-white tracking-tighter max-w-5xl">
+            <span className="glitch-subtle text-glow-red">
+              {typedTitle || 'WE ARE NOT ORDINARY.'}
+            </span>
+            <span
+              className={`inline-block w-2 md:w-3.5 h-10 md:h-20 bg-[#FF1E44] ml-2 align-middle ${
+                revealPhase >= 4 ? 'animate-pulse' : 'opacity-0'
+              }`}
+            />
+          </h1>
+        </div>
 
-        {/* Underworld Manifesto Excerpt */}
-        <p className="max-w-2xl text-[#888888] text-sm sm:text-base leading-relaxed mt-5 font-body">
-          Không sinh ra để đi theo số đông. Chúng tôi tập hợp ba cá tính độc bản từ Trường Đại học
-          Giao thông vận tải TP.HCM — xây dựng kiến trúc mã nguồn tối thượng, giao diện bùng nổ và
-          hệ thống thực chiến không giới hạn.
-        </p>
+        {/* LAYER 3: CREW MANIFESTO SUBTITLE */}
+        <div
+          className={`transition-all duration-1000 delay-200 mt-6 sm:mt-8 max-w-2xl ${
+            revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          <p className="font-mono text-sm sm:text-lg md:text-xl text-[#ccc] tracking-[0.25em] uppercase font-bold flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+            <span className="text-[#FF1E44]">THREE MINDS.</span>
+            <span className="text-white">ONE VISION.</span>
+            <span className="text-[#FF1E44]">ZERO LIMITS.</span>
+          </p>
 
-        {/* Primary CTA Button */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center gap-5">
+          <p className="font-body text-xs sm:text-sm text-[#777] leading-relaxed mt-4 max-w-xl mx-auto">
+            Không thỏa hiệp. Không khuôn mẫu. Ba kỹ sư phần mềm tương lai từ UTH kiến tạo giải pháp
+            mã nguồn chuẩn mực, giao diện bùng nổ và trải nghiệm số không giới hạn.
+          </p>
+        </div>
+
+        {/* LAYER 4: EDITORIAL CTA ACTION */}
+        <div
+          className={`mt-10 sm:mt-12 flex items-center gap-6 transition-all duration-1000 delay-300 ${
+            revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
+        >
           <button
-            onClick={onEnterUnderground}
-            className="btn-gang text-sm sm:text-base py-4 px-8 shadow-[0_0_30px_rgba(192,0,36,0.6)] hover:shadow-[0_0_50px_rgba(255,30,68,0.8)]"
+            onClick={scrollToNext}
+            className="btn-cinema btn-cinema-red"
           >
-            <Flame size={18} className="text-[#FF1E44] animate-pulse" />
-            <span>ENTER THE UNDERGROUND</span>
+            <span>ENTER THE CREW</span>
           </button>
-
-          <a
-            href="#members"
-            className="btn-gang btn-gang-outline text-sm sm:text-base py-4 px-8"
-          >
-            <Shield size={16} />
-            <span>EXAMINE OPERATIVES</span>
-          </a>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="mt-16 flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition cursor-pointer">
-          <span className="font-mono text-[10px] tracking-[0.3em] text-[#777] uppercase">
-            SCROLL TO COMMENCE
-          </span>
-          <ChevronDown size={20} className="text-[#FF1E44] animate-bounce" />
         </div>
       </div>
-    </header>
+
+      {/* 4. MINIMALIST SCROLL PROMPT */}
+      <div
+        onClick={scrollToNext}
+        className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center gap-2 cursor-pointer transition-all duration-700 ${
+          revealPhase >= 4 ? 'opacity-60 hover:opacity-100' : 'opacity-0'
+        }`}
+      >
+        <span className="font-mono text-[9px] tracking-[0.35em] text-[#888] uppercase">
+          EXPLORE
+        </span>
+        <div className="w-[1px] h-8 bg-gradient-to-b from-[#FF1E44] via-[#8B0000] to-transparent animate-pulse" />
+      </div>
+    </section>
   );
 }

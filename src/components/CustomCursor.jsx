@@ -4,31 +4,31 @@ export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [trailPos, setTrailPos] = useState({ x: -100, y: -100 });
   const [isHovered, setIsHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Only enable on pointer-fine devices (desktops)
-    const mediaQuery = window.matchMedia('(pointer: fine)');
-    if (!mediaQuery.matches) return;
+    // Only on pointer-fine devices
+    if (!window.matchMedia('(pointer: fine)').matches) return;
 
     let targetX = -100;
     let targetY = -100;
-    let currentX = -100;
-    let currentY = -100;
+    let curX = -100;
+    let curY = -100;
     let animId;
 
-    const handleMouseMove = (e) => {
+    const onMove = (e) => {
       targetX = e.clientX;
       targetY = e.clientY;
       setPos({ x: targetX, y: targetY });
-      setIsVisible(true);
+      setVisible(true);
 
       const target = e.target;
       if (
         target.closest('a') ||
         target.closest('button') ||
-        target.closest('.tilt-card') ||
-        target.closest('.interactive')
+        target.closest('input') ||
+        target.closest('textarea') ||
+        target.closest('.group')
       ) {
         setIsHovered(true);
       } else {
@@ -36,51 +36,48 @@ export default function CustomCursor() {
       }
     };
 
-    const handleMouseLeave = () => {
-      setIsVisible(false);
+    const onLeave = () => setVisible(false);
+
+    const loop = () => {
+      curX += (targetX - curX) * 0.2;
+      curY += (targetY - curY) * 0.2;
+      setTrailPos({ x: curX, y: curY });
+      animId = requestAnimationFrame(loop);
     };
 
-    const renderTrail = () => {
-      currentX += (targetX - currentX) * 0.18;
-      currentY += (targetY - currentY) * 0.18;
-      setTrailPos({ x: currentX, y: currentY });
-      animId = requestAnimationFrame(renderTrail);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    animId = requestAnimationFrame(renderTrail);
+    window.addEventListener('mousemove', onMove, { passive: true });
+    document.addEventListener('mouseleave', onLeave);
+    animId = requestAnimationFrame(loop);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseleave', onLeave);
       cancelAnimationFrame(animId);
     };
   }, []);
 
-  if (!isVisible) return null;
+  if (!visible) return null;
 
   return (
     <>
-      {/* Central Crosshair Dot */}
+      {/* Central Red Dot */}
       <div
-        className="fixed pointer-events-none z-[9999] transition-transform duration-75"
+        className="fixed pointer-events-none z-[9999]"
         style={{
           left: `${pos.x}px`,
           top: `${pos.y}px`,
           transform: 'translate(-50%, -50%)',
         }}
+        aria-hidden="true"
       >
         <div
-          className={`rounded-full transition-all duration-200 ${
-            isHovered
-              ? 'w-3 h-3 bg-[#FF1E44] shadow-[0_0_12px_#FF1E44]'
-              : 'w-1.5 h-1.5 bg-[#FF1E44] shadow-[0_0_6px_#FF1E44]'
+          className={`rounded-full transition-all duration-150 ${
+            isHovered ? 'w-2 h-2 bg-[#FF1E44]' : 'w-1.5 h-1.5 bg-[#FF1E44]'
           }`}
         />
       </div>
 
-      {/* Outer Tactical Crosshair Ring */}
+      {/* Outer Sleek Ring */}
       <div
         className="fixed pointer-events-none z-[9998]"
         style={{
@@ -88,20 +85,15 @@ export default function CustomCursor() {
           top: `${trailPos.y}px`,
           transform: 'translate(-50%, -50%)',
         }}
+        aria-hidden="true"
       >
         <div
-          className={`relative rounded-full border transition-all duration-300 flex items-center justify-center ${
+          className={`rounded-full border transition-all duration-200 ${
             isHovered
-              ? 'w-12 h-12 border-[#FF1E44] rotate-45 scale-110 shadow-[0_0_20px_rgba(255,30,68,0.5)]'
-              : 'w-7 h-7 border-[rgba(192,0,36,0.5)] rotate-0 scale-100'
+              ? 'w-10 h-10 border-[#FF1E44] bg-[#FF1E44]/10 shadow-[0_0_15px_rgba(255,30,68,0.4)]'
+              : 'w-6 h-6 border-[rgba(255,30,68,0.35)]'
           }`}
-        >
-          {/* Tactical cross notches */}
-          <span className="absolute -top-1 w-1 h-0.5 bg-[#FF1E44]" />
-          <span className="absolute -bottom-1 w-1 h-0.5 bg-[#FF1E44]" />
-          <span className="absolute -left-1 w-0.5 h-1 bg-[#FF1E44]" />
-          <span className="absolute -right-1 w-0.5 h-1 bg-[#FF1E44]" />
-        </div>
+        />
       </div>
     </>
   );

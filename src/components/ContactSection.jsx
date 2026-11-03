@@ -1,0 +1,3 @@
+import React from'react';
+const people=[['NGUYỄN VĂN TRUNG','CORE SYSTEMS & BACKEND','mailto:trunggn123@gmail.com'],['NGUYỄN VŨ DUY','FRONTEND & UI/UX','mailto:nguyenvuduy64310@gmail.com'],['DƯƠNG NHƯ PHONG SƠN','FULL-STACK & CLOUD','mailto:son.duong@uth.edu.vn']];
+export default function ContactSection(){return <section className="section" id="contact"><span className="section-kicker">04 / OPEN A CHANNEL</span><div className="contact-layout"><h2 className="contact-intro">Let's make<br/>something <em>real.</em></h2><div className="contact-list">{people.map(([name,role,email])=><div className="contact-person" key={name}><div><h3>{name}</h3><p>{role}</p></div><a href={email}>EMAIL ↗</a></div>)}</div></div></section>}

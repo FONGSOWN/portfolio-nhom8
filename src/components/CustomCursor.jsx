@@ -1,0 +1,2 @@
+import React,{useEffect,useState}from'react';
+export default function CustomCursor(){const[p,setP]=useState(null);useEffect(()=>{if(!matchMedia('(pointer:fine)').matches)return;const f=e=>setP({x:e.clientX,y:e.clientY});addEventListener('mousemove',f,{passive:true});return()=>removeEventListener('mousemove',f)},[]);return p&&<><i className="cursor-dot" style={{left:p.x,top:p.y}}/><i className="cursor-ring" style={{left:p.x,top:p.y}}/></>}

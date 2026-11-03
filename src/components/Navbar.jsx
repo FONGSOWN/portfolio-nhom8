@@ -1,0 +1,2 @@
+import React,{useEffect,useState}from'react';
+export default function Navbar(){const[s,setS]=useState(false);useEffect(()=>{const f=()=>setS(scrollY>30);addEventListener('scroll',f,{passive:true});return()=>removeEventListener('scroll',f)},[]);return <header className={`nav ${s?'is-scrolled':''}`}><a href="#hero" className="brand"><i/>THE SYNDICATE</a><nav className="nav-links"><a href="#crew">CREW</a><a href="#project">PROJECT</a><a href="#tech">TECH</a><a href="#contact">CONTACT</a></nav></header>}

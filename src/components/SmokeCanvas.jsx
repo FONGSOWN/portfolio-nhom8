@@ -148,7 +148,7 @@ export default function SmokeCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-[2]"
+      className="ambient-canvas"
       style={{ opacity: 0.75 }}
       aria-hidden="true"
     />
